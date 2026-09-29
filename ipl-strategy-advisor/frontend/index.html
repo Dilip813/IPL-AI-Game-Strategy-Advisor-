@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPL AI Game Strategy Advisor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="app-header">
+  <div class="logo">
+    <span>🏏</span> IPL AI Game Strategy Advisor
+    <span class="badge">Agentic AI</span>
+  </div>
+  <div style="display:flex; align-items:center; gap:12px">
+    <div class="status-pill">
+      <span class="dot"></span>
+      <span id="api-status">Connecting…</span>
+    </div>
+    <span style="font-size:11px; color:var(--muted)">
+      Powered by IBM watsonx.ai · Granite · RAG
+    </span>
+  </div>
+</header>
+
+<!-- ── Main layout ─────────────────────────────────────────────────────────── -->
+<div class="main-layout">
+
+  <!-- ────────────── Sidebar ────────────── -->
+  <aside class="sidebar">
+
+    <!-- IPL badge + data provenance -->
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <div style="display:flex; align-items:center; gap:8px">
+        <span class="tag tag-orange" style="font-size:12px; padding:4px 10px">🏏 IPL</span>
+        <span style="font-size:11px; color:var(--muted)">Indian Premier League</span>
+      </div>
+      <!-- Real data badge — updated by JS after /api/cricket/teams loads -->
+      <div id="cr-data-badge" style="display:flex; gap:4px; flex-wrap:wrap">
+        <span class="tag tag-orange" style="font-size:10px">Loading data…</span>
+      </div>
+      <!-- Match/season/delivery count -->
+      <div id="cr-data-info" style="font-size:10px; color:var(--muted); line-height:1.5"></div>
+    </div>
+
+    <!-- Step 1: Teams -->
+    <div>
+      <div class="section-heading">Step 1 — Select Teams</div>
+      <div class="card">
+        <div class="card-body" style="display:flex; flex-direction:column; gap:12px">
+          <div class="form-group">
+            <label class="form-label" for="cr-our-team">Our Team</label>
+            <select id="cr-our-team">
+              <option value="">Select team…</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cr-opponent">Opponent</label>
+            <select id="cr-opponent">
+              <option value="">Select team…</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cr-venue">Venue (optional)</label>
+            <select id="cr-venue">
+              <option value="">Any venue</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cr-season">Season (optional)</label>
+            <select id="cr-season">
+              <option value="">All seasons</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team vs -->
+    <div class="card">
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px">
+          <span id="cr-our-name" style="font-weight:700; color:var(--accent)">—</span>
+          <span style="color:var(--muted)">vs</span>
+          <span id="cr-opp-name" style="font-weight:700; color:var(--danger)">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Analyse -->
+    <div>
+      <div class="section-heading">Step 2 — Run Analysis</div>
+      <button class="btn btn-primary" id="btn-cr-analyze" disabled>
+        🔍 Run IPL Agent Analysis
+      </button>
+    </div>
+
+    <hr style="border:none; border-top:1px solid var(--border)" />
+
+    <!-- Step 3: What-If -->
+    <div>
+      <div class="section-heading">Step 3 — What-If Simulator</div>
+      <div class="card">
+        <div class="card-body" style="display:flex; flex-direction:column; gap:10px">
+          <div class="section-heading" style="margin-bottom:4px">Quick Scenarios</div>
+          <div class="scenario-chips" id="cr-whatif-chips"></div>
+          <div class="form-group">
+            <label class="form-label" for="cr-whatif-input">Custom Scenario</label>
+            <textarea id="cr-whatif-input" placeholder="e.g. We lost 2 wickets in the powerplay…" rows="2"></textarea>
+          </div>
+          <button class="btn btn-warning" id="btn-cr-whatif">
+            🎮 Simulate Scenario
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Live Event -->
+    <div>
+      <div class="section-heading">Step 4 — Live Event Demo</div>
+      <div class="card">
+        <div class="card-body" style="display:flex; flex-direction:column; gap:10px">
+          <div class="section-heading" style="margin-bottom:4px">Quick Events</div>
+          <div class="scenario-chips" id="cr-realtime-chips"></div>
+          <div class="form-group">
+            <label class="form-label" for="cr-realtime-input">Simulated Live Event</label>
+            <textarea id="cr-realtime-input" placeholder='e.g. Opponent scored 68 in the powerplay…' rows="2"></textarea>
+          </div>
+          <button class="btn btn-success" id="btn-cr-realtime">
+            ⚡ Get Instant Adjustment
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data attribution -->
+    <div style="background:rgba(63,185,80,0.07); border:1px solid rgba(63,185,80,0.25);
+                border-radius:6px; padding:8px 10px; font-size:10px; color:var(--muted); line-height:1.6">
+      <strong style="color:var(--accent2)">Real IPL Data</strong><br>
+      Source: <a href="https://cricsheet.org" target="_blank"
+                 style="color:var(--accent)">Cricsheet</a>
+      (Stephen Rushe) &middot; CC BY 4.0<br>
+      Statistics derived directly from ball-by-ball records.
+    </div>
+
+    <!-- Architecture note -->
+    <div style="font-size:11px; color:var(--muted); line-height:1.6; padding:4px 0">
+      <strong style="color:var(--purple)">IPL Agents:</strong><br>
+      1. IPL Match Analysis Agent<br>
+      2. IPL Opponent Strategy Agent<br>
+      3. IPL Strategy Recommendation Agent<br>
+      4. IPL Insight Explanation Agent
+    </div>
+
+  </aside>
+
+  <!-- ────────────── Main Content ────────────── -->
+  <main class="main-content">
+
+    <!-- IPL Dashboard -->
+    <div id="cr-dashboard-area">
+      <div class="empty-state">
+        <div class="big-icon">🏏</div>
+        <div class="em">IPL AI Game Strategy Advisor</div>
+        <p>
+          Select <strong>Our Team</strong> and <strong>Opponent</strong> from the sidebar,
+          then click <strong>Run IPL Agent Analysis</strong> to begin.
+        </p>
+        <div style="margin-top:16px; font-size:12px; color:var(--muted); max-width:400px; line-height:1.7">
+          The system retrieves real Cricsheet IPL match data via RAG, profiles opponent
+          batting/bowling patterns, generates phase-by-phase recommendations, and produces
+          plain coaching insights — powered by a 4-agent pipeline.
+        </div>
+        <div style="display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; justify-content:center">
+          <span class="tag tag-orange">🏏 IPL</span>
+          <span class="tag tag-blue">IBM watsonx.ai</span>
+          <span class="tag tag-purple">IBM Granite</span>
+          <span class="tag tag-green">RAG Pipeline</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cricket What-If -->
+    <div style="margin-top:24px">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px">
+        <div class="section-heading" style="margin:0">What-If Scenario Result</div>
+        <span class="agent-badge">Cricket What-If Engine</span>
+      </div>
+      <div class="card">
+        <div class="card-body" id="cr-whatif-result">
+          <div class="empty-state" style="padding:30px 20px">
+            <div class="big-icon" style="font-size:28px">🎮</div>
+            <div class="em" style="font-size:13px">No scenario simulated yet</div>
+            <p>Select a scenario and click Simulate Scenario.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cricket Live Event -->
+    <div style="margin-top:24px">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px">
+        <div class="section-heading" style="margin:0">Live Event Tactical Adjustment</div>
+        <span class="agent-badge">Cricket Live Engine</span>
+      </div>
+      <div class="card">
+        <div class="card-body" id="cr-realtime-result">
+          <div class="empty-state" style="padding:30px 20px">
+            <div class="big-icon" style="font-size:28px">⚡</div>
+            <div class="em" style="font-size:13px">No live event entered yet</div>
+            <p>Enter a simulated cricket event and click Get Instant Adjustment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top:40px; padding-top:16px; border-top:1px solid var(--border);
+                text-align:center; font-size:11px; color:var(--muted)">
+      IPL AI Game Strategy Advisor · Indian Premier League · Agentic AI Demonstration ·
+      IBM watsonx.ai + IBM Granite + RAG + Multi-Agent Architecture ·
+      Real Cricsheet Data (CC BY 4.0)
+    </div>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
